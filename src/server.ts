@@ -7,7 +7,7 @@ import authRoutes from './routes/auth';
 import { db } from './db';
 import { produtos } from './db/schema';
 import { authMiddleware } from './middlewares/auth';
-import produtosRoutes from '../src/routes/produtos';
+import produtosRoutes from './routes/produtos';
 import pedidosRoutes from './routes/pedidos';
 import  enderecosRoutes  from './routes/enderecos';
 import checkoutRoutes from './routes/checkout';
