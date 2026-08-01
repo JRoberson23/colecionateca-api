@@ -1,65 +1,56 @@
-import nodemailer from 'nodemailer';
+import { Resend } from "resend";
 
-// Configurar o transporter do Mailgun (SMTP)
-const transporter = nodemailer.createTransport({
-  host: 'smtp.mailgun.org',
-  port: 587,
-  secure: false, // TLS
-  auth: {
-    user: process.env.MAILGUN_SMTP_USERNAME,
-    pass: process.env.MAILGUN_SMTP_PASSWORD,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
 export async function enviarEmailVerificacao(email: string, nome: string, token: string) {
-  const link = `${APP_URL}/auth/verify-email?token=${token}`;
+    const link = `${APP_URL}/auth/verify-email?token=${token}`;
 
-  try {
-    const info = await transporter.sendMail({
-      from: `"Colecionateca" <${process.env.MAILGUN_SMTP_USERNAME}>`,
-      to: email,
-      subject: "Confirme seu e-mail - Colecionateca",
-      html: `
-        <h1>Olá, ${nome}!</h1>
-        <p>Obrigado por se registrar na Colecionateca. Por favor, confirme seu e-mail clicando no link abaixo:</p>
-        <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Confirmar e-mail</a>
-        <p>Se você não se registrou na Colecionateca, por favor ignore este e-mail.</p>
-        <p>Este link de verificação expira em 24 horas.</p>
-        <p>Atenciosamente,<br/>Equipe Colecionateca</p>
-      `,
+    const { data, error } = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: [email],
+        subject: "Confirme seu e-mail - Colecionateca",
+        html: `
+            <h1>Olá, ${nome}!</h1>
+            <p>Obrigado por se registrar na Colecionateca. Por favor, confirme seu e-mail clicando no link abaixo:</p>
+            <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Confirmar e-mail</a>
+            <p>Se você não se registrou na Colecionateca, por favor ignore este e-mail.</p>
+            <p>Este link de verificação expira em 24 horas.</p>
+            <p>Atenciosamente,<br/>Equipe Colecionateca</p>
+        `,
     });
 
-    return info;
-  } catch (error) {
-    console.error("Erro ao enviar e-mail de verificação:", error);
-    throw new Error("Erro ao enviar e-mail de verificação");
-  }
+    if (error) {
+        console.error("Erro ao enviar e-mail de verificação:", error);
+        throw new Error("Erro ao enviar e-mail de verificação");
+    }
+
+    return data;
 }
 
 export async function enviarEmailRecuperacao(email: string, nome: string, token: string) {
-  const link = `${APP_URL}/auth/reset-password?token=${token}`;
+    const link = `${APP_URL}/auth/reset-password?token=${token}`;
 
-  try {
-    const info = await transporter.sendMail({
-      from: `"Colecionateca" <${process.env.MAILGUN_SMTP_USERNAME}>`,
-      to: email,
-      subject: 'Recuperação de senha - Colecionateca',
-      html: `
-        <h1>Olá, ${nome}!</h1>
-        <p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para criar uma nova senha:</p>
-        <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Redefinir senha</a>
-        <p>Se você não solicitou esta alteração, ignore este e-mail.</p>
-        <p>Este link expira em 1 hora.</p>
-      `,
+    const { data, error } = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: [email],
+        subject: 'Recuperação de senha - Colecionateca',
+        html: `
+            <h1>Olá, ${nome}!</h1>
+            <p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para criar uma nova senha:</p>
+            <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Redefinir senha</a>
+            <p>Se você não solicitou esta alteração, ignore este e-mail.</p>
+            <p>Este link expira em 1 hora.</p>
+        `
     });
 
-    return info;
-  } catch (error) {
-    console.error('Erro ao enviar e-mail de recuperação:', error);
-    throw new Error('Erro ao enviar e-mail de recuperação');
-  }
+    if (error) {
+        console.error('Erro ao enviar e-mail de recuperação:', error);
+        throw new Error('Erro ao enviar e-mail de recuperação');
+    }
+
+    return data;
 }
 
 export async function enviarEmailNotificacaoPedido(
@@ -69,9 +60,9 @@ export async function enviarEmailNotificacaoPedido(
   itens: any[]
 ) {
   try {
-    const info = await transporter.sendMail({
-      from: `"Colecionateca" <${process.env.MAILGUN_SMTP_USERNAME}>`,
-      to: emailLoja,
+    const { data, error } = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: [emailLoja],
       subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Colecionateca`,
       html: `
         <h1>🛒 Novo Pedido Recebido!</h1>
@@ -132,9 +123,14 @@ export async function enviarEmailNotificacaoPedido(
       `,
     });
 
-    return info;
+    if (error) {
+      console.error('Erro ao enviar e-mail de notificação:', error);
+      throw new Error('Erro ao enviar e-mail de notificação');
+    }
+
+    return data;
   } catch (error) {
     console.error('Erro ao enviar e-mail de notificação:', error);
-    throw new Error('Erro ao enviar e-mail de notificação');
+    throw error;
   }
 }
