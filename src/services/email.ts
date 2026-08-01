@@ -1,11 +1,13 @@
 import nodemailer from 'nodemailer';
 
-// Configurar o transporter do Gmail
+// Configurar o transporter do Mailgun (SMTP)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.mailgun.org',
+  port: 587,
+  secure: false, // TLS
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.MAILGUN_SMTP_USERNAME,
+    pass: process.env.MAILGUN_SMTP_PASSWORD,
   },
 });
 
@@ -16,7 +18,7 @@ export async function enviarEmailVerificacao(email: string, nome: string, token:
 
   try {
     const info = await transporter.sendMail({
-      from: `"Colecionateca" <${process.env.EMAIL_USER}>`,
+      from: `"Colecionateca" <${process.env.MAILGUN_SMTP_USERNAME}>`,
       to: email,
       subject: "Confirme seu e-mail - Colecionateca",
       html: `
@@ -41,7 +43,7 @@ export async function enviarEmailRecuperacao(email: string, nome: string, token:
 
   try {
     const info = await transporter.sendMail({
-      from: `"Colecionateca" <${process.env.EMAIL_USER}>`,
+      from: `"Colecionateca" <${process.env.MAILGUN_SMTP_USERNAME}>`,
       to: email,
       subject: 'Recuperação de senha - Colecionateca',
       html: `
@@ -68,7 +70,7 @@ export async function enviarEmailNotificacaoPedido(
 ) {
   try {
     const info = await transporter.sendMail({
-      from: `"Colecionateca" <${process.env.EMAIL_USER}>`,
+      from: `"Colecionateca" <${process.env.MAILGUN_SMTP_USERNAME}>`,
       to: emailLoja,
       subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Colecionateca`,
       html: `
