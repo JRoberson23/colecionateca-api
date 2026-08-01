@@ -2,8 +2,10 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+
 export async function enviarEmailVerificacao(email: string, nome: string, token: string) {
-    const link = `http://localhost:3001/verificar-email?token=${token}`;
+    const link = `${APP_URL}/auth/verify-email?token=${token}`;
 
     const { data, error } = await resend.emails.send({
         from: 'onboarding@resend.dev',
@@ -28,8 +30,7 @@ export async function enviarEmailVerificacao(email: string, nome: string, token:
 }
 
 export async function enviarEmailRecuperacao(email: string, nome: string, token: string) {
-    const baseUrl = process.env.APP_URL || 'http://localhost:3001';
-    const link = `http://localhost:3001/auth/verify-email?token=${token}`;
+    const link = `${APP_URL}/auth/reset-password?token=${token}`;
 
     const { data, error } = await resend.emails.send({
         from: 'onboarding@resend.dev',
@@ -60,7 +61,7 @@ export async function enviarEmailNotificacaoPedido(
 ) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Colecionateca <nao-responder@colecionateca.com>',
+      from: 'onboarding@resend.dev', // ✅ Temporário
       to: [emailLoja],
       subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Colecionateca`,
       html: `
