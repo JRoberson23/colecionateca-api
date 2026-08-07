@@ -35,7 +35,20 @@ router.get('/', async (req, res) => {
   }
 });
 
-// BUSCAR produto por ID (GET /produtos/:id)
+// GET /produtos/destaque - Buscar produtos em destaque (ANTES do /:id!)
+router.get('/destaque', async (req, res) => {
+  try {
+    console.log('🔍 Buscando produtos em destaque...');
+    const destaque = await db.select().from(produtos).where(eq(produtos.destaque, true));
+    console.log(`✅ ${destaque.length} produtos em destaque encontrados`);
+    res.json(destaque);
+  } catch (error) {
+    console.error('❌ Erro ao buscar produtos em destaque:', error);
+    res.status(500).json({ message: 'Erro ao buscar produtos em destaque' });
+  }
+});
+
+// BUSCAR produto por ID (GET /produtos/:id) - DEPOIS do /destaque!
 router.get('/:id', async (req, res) => {
   try {
     const id = validarID(req.params.id);
@@ -52,17 +65,6 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ message: 'ID inválido' });
     }
     res.status(500).json({ message: 'Erro ao buscar produto' });
-  }
-});
-
-// GET /produtos/destaque - Buscar produtos em destaque
-router.get('/destaque', async (req, res) => {
-  try {
-    const destaque = await db.select().from(produtos).where(eq(produtos.destaque, true));
-    res.json(destaque);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao buscar produtos em destaque' });
   }
 });
 
@@ -159,7 +161,6 @@ router.post('/upload', adminMiddleware, upload.single('imagem'), async (req: Aut
       return res.status(400).json({ message: 'Nenhuma imagem enviada' });
     }
 
-    // Retornar a URL da imagem
     const imageUrl = `/uploads/${req.file.filename}`;
     res.json({ 
       message: 'Imagem enviada com sucesso!',
