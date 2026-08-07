@@ -10,7 +10,8 @@ export const produtos = pgTable("produtos", {
     estoque: integer("estoque").notNull(),
     imagem: varchar("imagem", { length: 500 }),
     categoria: varchar("categoria", { length: 50 }),
-    metadata: jsonb("metadata"), 
+    metadata: jsonb("metadata"),
+    destaque: boolean("destaque").default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });

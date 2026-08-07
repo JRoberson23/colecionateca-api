@@ -22,6 +22,13 @@
       "when": 1784569013719,
       "tag": "0002_cool_omega_red",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786123650925,
+      "tag": "0003_lowly_peter_quill",
+      "breakpoints": true
     }
   ]
 }

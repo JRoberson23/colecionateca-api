@@ -55,6 +55,17 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// GET /produtos/destaque - Buscar produtos em destaque
+router.get('/destaque', async (req, res) => {
+  try {
+    const destaque = await db.select().from(produtos).where(eq(produtos.destaque, true));
+    res.json(destaque);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao buscar produtos em destaque' });
+  }
+});
+
 // ADMIN - CRIAR novo produto (POST /produtos)
 router.post('/', adminMiddleware, async (req, res) => {
   try {
