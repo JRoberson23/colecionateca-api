@@ -6,6 +6,7 @@ import { adminMiddleware } from '../middlewares/auth';
 import { upload } from '../services/upload';
 import path from 'path';
 import { AuthRequest } from '../middlewares/auth';
+import { uploadToCloudinary } from '../services/upload';
 
 const router = Router();
 
@@ -161,14 +162,18 @@ router.post('/upload', adminMiddleware, upload.single('imagem'), async (req: Aut
       return res.status(400).json({ message: 'Nenhuma imagem enviada' });
     }
 
-    const imageUrl = `/uploads/${req.file.filename}`;
-    res.json({ 
+    // Upload para o Cloudinary
+    const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+
+    res.json({
       message: 'Imagem enviada com sucesso!',
-      imageUrl: imageUrl
+      imageUrl: imageUrl,
     });
   } catch (error) {
-    console.error('Erro ao fazer upload:', error);
-    res.status(500).json({ message: 'Erro ao fazer upload da imagem' });
+    console.error('❌ Erro ao fazer upload:', error);
+    res.status(500).json({ 
+      message: error instanceof Error ? error.message : 'Erro ao fazer upload da imagem' 
+    });
   }
 });
 

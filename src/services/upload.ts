@@ -1,18 +1,27 @@
 import multer from 'multer';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 import { Request } from 'express';
 
-// Configurar o armazenamento
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `produto-${uniqueSuffix}${ext}`);
-  },
-});
+// Configurar Cloudinary (com validação)
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+// Verificar se as credenciais estão definidas
+if (!cloudName || !apiKey || !apiSecret) {
+  console.error('❌ Credenciais do Cloudinary não configuradas!');
+  console.error('Verifique: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET');
+} else {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+  });
+  console.log('✅ Cloudinary configurado com sucesso!');
+}
+
+// Armazenamento em memória (não salva no disco)
+const storage = multer.memoryStorage();
 
 // Filtro para aceitar apenas imagens
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
@@ -24,7 +33,6 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   }
 };
 
-// Configurar o multer
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
@@ -33,7 +41,32 @@ export const upload = multer({
   },
 });
 
-// Função para servir imagens (rota estática)
-export const getImageUrl = (filename: string) => {
-  return `/uploads/${filename}`;
+// Função para fazer upload para o Cloudinary
+export const uploadToCloudinary = async (fileBuffer: Buffer, filename: string): Promise<string> => {
+  try {
+    // Verificar se o Cloudinary está configurado
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      throw new Error('Cloudinary não configurado. Verifique as variáveis de ambiente.');
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'colecionateca',
+          public_id: filename.replace(/\.[^/.]+$/, ''), // Remove a extensão
+          resource_type: 'image',
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(fileBuffer);
+    });
+
+    return (result as any).secure_url;
+  } catch (error) {
+    console.error('❌ Erro no upload para Cloudinary:', error);
+    throw new Error('Erro ao fazer upload da imagem para a nuvem');
+  }
 };
