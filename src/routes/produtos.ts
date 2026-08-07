@@ -88,6 +88,7 @@ router.post('/', adminMiddleware, async (req, res) => {
       imagem: imagem || null,
       categoria: categoria || null,
       metadata: metadata || null,
+      destaque: false,
     }).returning();
 
     res.status(201).json(novoProduto[0]);
@@ -101,7 +102,7 @@ router.post('/', adminMiddleware, async (req, res) => {
 router.put('/:id', adminMiddleware, async (req, res) => {
   try {
     const id = validarID(req.params.id);
-    const { nome, descricao, preco, estoque, imagem, categoria, metadata } = req.body;
+    const { nome, descricao, preco, estoque, imagem, categoria, metadata, destaque } = req.body;
 
     const existente = await db.select().from(produtos).where(eq(produtos.id, id));
     if (existente.length === 0 || !existente[0]) {
@@ -119,6 +120,7 @@ router.put('/:id', adminMiddleware, async (req, res) => {
         imagem: imagem !== undefined ? imagem : produtoAtual.imagem,
         categoria: categoria !== undefined ? categoria : produtoAtual.categoria,
         metadata: metadata !== undefined ? metadata : produtoAtual.metadata,
+        destaque: destaque !== undefined ? destaque : produtoAtual.destaque,
         updatedAt: new Date(),
       })
       .where(eq(produtos.id, id))
