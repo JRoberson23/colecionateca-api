@@ -13,6 +13,7 @@ import  enderecosRoutes  from './routes/enderecos';
 import checkoutRoutes from './routes/checkout';
 import freteRoutes from './routes/frete';
 import path from 'path';
+import './services/ping';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
