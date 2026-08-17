@@ -114,10 +114,6 @@ export async function calcularFrete(
     throw new Error("O Melhor Envio retornou um formato inesperado.");
   }
 
-  /*
-   * A API normalmente devolve price como texto, por exemplo "25.90",
-   * e company como um objeto. Aqui normalizamos antes de enviar ao frontend.
-   */
   const opcoes = (responseData as ServicoMelhorEnvio[])
   .filter((servico) => {
     const preco =

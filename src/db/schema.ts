@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, integer, real, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { sql } from 'drizzle-orm';
 
-// Tabela produtos - Versão flexível
+// Tabela produtos
 export const produtos = pgTable("produtos", {
     id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
     nome: varchar("nome", { length: 255 }).notNull(),

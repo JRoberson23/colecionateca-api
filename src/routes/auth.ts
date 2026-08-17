@@ -201,7 +201,7 @@ router.post('/forgot-password', async (req, res) => {
             });
         }
 
-        // 🔧 CORREÇÃO: Verificar se o usuário existe
+        // Verificar se o usuário existe
         const usuario = resultado[0];
         if (!usuario) {
             return res.status(200).json({ 
@@ -254,7 +254,7 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).json({ message: 'Token inválido' });
         }
 
-        // 🔧 CORREÇÃO: Verificar se o usuário existe
+        // Verificar se o usuário existe
         const usuario = resultado[0];
         if (!usuario) {
             return res.status(400).json({ message: 'Token inválido' });
@@ -337,7 +337,7 @@ router.put('/perfil', authMiddleware, async (req: AuthRequest, res) => {
         // Buscar dados atualizados
         const usuarioAtualizado = await db.select().from(usuarios).where(eq(usuarios.id, userId));
         
-        // 🔧 CORREÇÃO: Garantir que o usuário atualizado existe
+        // Garantir que o usuário atualizado existe
         if (!usuarioAtualizado || !usuarioAtualizado[0]) {
             return res.status(404).json({ message: 'Erro ao buscar dados atualizados' });
         }

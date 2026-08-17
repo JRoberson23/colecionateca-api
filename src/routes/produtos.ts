@@ -157,24 +157,28 @@ router.delete('/:id', adminMiddleware, async (req, res) => {
   }
 });
 
-// ADMIN - Upload de imagem (POST /produtos/upload)
-router.post('/upload', adminMiddleware, upload.single('imagens'), async (req: AuthRequest, res) => {
+// ADMIN - Upload de múltiplas imagens (POST /produtos/upload)
+router.post('/upload', adminMiddleware, upload.array('imagens', 5), async (req: AuthRequest, res) => {
   try {
-    if (!req.file) {
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) {
       return res.status(400).json({ message: 'Nenhuma imagem enviada' });
     }
 
-    // Upload para o Cloudinary
-    const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+    const imageUrls = [];
+    for (const file of files) {
+      const imageUrl = await uploadToCloudinary(file.buffer, file.originalname);
+      imageUrls.push(imageUrl);
+    }
 
     res.json({
-      message: 'Imagem enviada com sucesso!',
-      imageUrl: imageUrl,
+      message: `${imageUrls.length} imagem(ns) enviada(s) com sucesso!`,
+      imageUrls: imageUrls,
     });
   } catch (error) {
     console.error('❌ Erro ao fazer upload:', error);
     res.status(500).json({ 
-      message: error instanceof Error ? error.message : 'Erro ao fazer upload da imagem' 
+      message: error instanceof Error ? error.message : 'Erro ao fazer upload das imagens' 
     });
   }
 });
