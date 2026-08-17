@@ -4,7 +4,7 @@ import axios from 'axios';
 // Função para fazer o ping
 async function pingBackend() {
     try {
-        const url = process.env.BACKEND_URL || 'https://colecionateca.onrender.com'; // URL do backend
+        const url = process.env.API_URL || 'https://colecionateca-api.onrender.com'; // URL do backend
         const response = await axios.get(`${url}/`);
         console.log(`Ping realizado com sucesso às ${new Date().toLocaleDateString(`pt-BR`)} - Status: ${response.status}`);
     } catch (error) {
