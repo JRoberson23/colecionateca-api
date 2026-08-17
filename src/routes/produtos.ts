@@ -72,7 +72,7 @@ router.get('/:id', async (req, res) => {
 // ADMIN - CRIAR novo produto (POST /produtos)
 router.post('/', adminMiddleware, async (req, res) => {
   try {
-    const { nome, descricao, preco, estoque, imagem, categoria, metadata } = req.body;
+    const { nome, descricao, preco, estoque, imagens, categoria, metadata } = req.body;
     
     if (!nome || preco === undefined || estoque === undefined) {
       return res.status(400).json({ 
@@ -85,7 +85,7 @@ router.post('/', adminMiddleware, async (req, res) => {
       descricao: descricao || null,
       preco,
       estoque,
-      imagens: imagem || null,
+      imagens: imagens || null,
       categoria: categoria || null,
       metadata: metadata || null,
       destaque: false,
@@ -102,7 +102,7 @@ router.post('/', adminMiddleware, async (req, res) => {
 router.put('/:id', adminMiddleware, async (req, res) => {
   try {
     const id = validarID(req.params.id);
-    const { nome, descricao, preco, estoque, imagem, categoria, metadata, destaque } = req.body;
+    const { nome, descricao, preco, estoque, imagens, categoria, metadata, destaque } = req.body;
 
     const existente = await db.select().from(produtos).where(eq(produtos.id, id));
     if (existente.length === 0 || !existente[0]) {
@@ -117,7 +117,7 @@ router.put('/:id', adminMiddleware, async (req, res) => {
         descricao: descricao !== undefined ? descricao : produtoAtual.descricao,
         preco: preco || produtoAtual.preco,
         estoque: estoque !== undefined ? estoque : produtoAtual.estoque,
-        imagens: imagem !== undefined ? imagem : produtoAtual.imagens,
+        imagens: imagens !== undefined ? imagens : produtoAtual.imagens,
         categoria: categoria !== undefined ? categoria : produtoAtual.categoria,
         metadata: metadata !== undefined ? metadata : produtoAtual.metadata,
         destaque: destaque !== undefined ? destaque : produtoAtual.destaque,
