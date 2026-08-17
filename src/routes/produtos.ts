@@ -79,13 +79,13 @@ router.post('/', adminMiddleware, async (req, res) => {
         message: 'Campos obrigatórios: nome, preco, estoque' 
       });
     }
-
+    
     const novoProduto = await db.insert(produtos).values({
       nome,
       descricao: descricao || null,
       preco,
       estoque,
-      imagem: imagem || null,
+      imagens: imagem || null,
       categoria: categoria || null,
       metadata: metadata || null,
       destaque: false,
@@ -117,7 +117,7 @@ router.put('/:id', adminMiddleware, async (req, res) => {
         descricao: descricao !== undefined ? descricao : produtoAtual.descricao,
         preco: preco || produtoAtual.preco,
         estoque: estoque !== undefined ? estoque : produtoAtual.estoque,
-        imagem: imagem !== undefined ? imagem : produtoAtual.imagem,
+        imagens: imagem !== undefined ? imagem : produtoAtual.imagens,
         categoria: categoria !== undefined ? categoria : produtoAtual.categoria,
         metadata: metadata !== undefined ? metadata : produtoAtual.metadata,
         destaque: destaque !== undefined ? destaque : produtoAtual.destaque,
@@ -158,7 +158,7 @@ router.delete('/:id', adminMiddleware, async (req, res) => {
 });
 
 // ADMIN - Upload de imagem (POST /produtos/upload)
-router.post('/upload', adminMiddleware, upload.single('imagem'), async (req: AuthRequest, res) => {
+router.post('/upload', adminMiddleware, upload.single('imagens'), async (req: AuthRequest, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Nenhuma imagem enviada' });

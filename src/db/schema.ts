@@ -8,7 +8,7 @@ export const produtos = pgTable("produtos", {
     descricao: varchar("descricao", { length: 1000 }),
     preco: real("preco").notNull(),
     estoque: integer("estoque").notNull(),
-    imagem: varchar("imagem", { length: 500 }),
+    imagens: jsonb("imagens").default([]),
     categoria: varchar("categoria", { length: 50 }),
     metadata: jsonb("metadata"),
     destaque: boolean("destaque").default(false),
