@@ -72,7 +72,7 @@ router.get('/:id', async (req, res) => {
 // ADMIN - CRIAR novo produto (POST /produtos)
 router.post('/', adminMiddleware, async (req, res) => {
   try {
-    const { nome, descricao, preco, estoque, imagens, categoria, metadata } = req.body;
+    const { nome, descricao, preco, estoque, imagens, categoria, metadata, destaque } = req.body;
     
     if (!nome || preco === undefined || estoque === undefined) {
       return res.status(400).json({ 
@@ -88,7 +88,7 @@ router.post('/', adminMiddleware, async (req, res) => {
       imagens: imagens || null,
       categoria: categoria || null,
       metadata: metadata || null,
-      destaque: false,
+      destaque: destaque || false,
     }).returning();
 
     res.status(201).json(novoProduto[0]);
