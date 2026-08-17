@@ -183,4 +183,5 @@ router.post('/upload', adminMiddleware, upload.array('imagens', 5), async (req: 
   }
 });
 
+
 export default router;
