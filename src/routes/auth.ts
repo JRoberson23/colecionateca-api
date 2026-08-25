@@ -45,7 +45,7 @@ router.post("/register", async (req, res) => {
       email: novoUsuario.email,
       senha_hash: novoUsuario.senha_hash,
       role: novoUsuario.role,
-      email_verificado: false,
+      email_verificado: true,
       token_verificacao: tokenVerificacao,
       token_expiracao: expiracao,
     });
@@ -57,7 +57,7 @@ router.post("/register", async (req, res) => {
     }
 
     return res.status(201).json({
-      message: "Usuário registrado com sucesso! Verifique seu e-mail para ativar a conta",
+      message: "Usuário registrado com sucesso!",
       user: {
         id: novoUsuario.id,
         nome: novoUsuario.nome,
