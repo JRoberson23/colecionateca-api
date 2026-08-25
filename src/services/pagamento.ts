@@ -10,34 +10,30 @@ export async function criarPreferenciaPagamento(itens: any[], endereco: any, usu
     const preference = new Preference(client);
 
     const body = {
-    items: itens.map((item) => ({
+      items: itens.map((item) => ({
         id: item.produto_id || `item_${Date.now()}_${Math.random()}`,
         title: item.nome,
         quantity: item.quantidade,
         unit_price: item.preco_unitario,
         currency_id: 'BRL',
-    })),
-    payer: {
+      })),
+      payer: {
         name: usuario.nome,
         email: usuario.email,
-    },
-    payment_methods: {
+      },
+      payment_methods: {
         excluded_payment_methods: [
-        { id: 'bolbradesco' },
-        ],
-        excluded_payment_types: [
-        { id: 'ticket' },
+          { id: 'bolbradesco' },
         ],
         installments: 12,
-    },
-    back_urls: {
-        success: `http://localhost:3000/pedido-confirmado`,
-        failure: `http://localhost:3000/checkout?status=failed`,
-        pending: `http://localhost:3000/checkout?status=pending`,
-    },
-    notification_url: `http://localhost:3001/webhook/pagamento`,
-    // ✅ FORÇAR Checkout Pro (redireciona para o MP)
-    marketplace: 'MLB',
+      },
+      back_urls: {
+        success: `${process.env.APP_URL || 'https://roberson-store.vercel.app'}/pedido-confirmado`,
+        failure: `${process.env.APP_URL || 'https://roberson-store.vercel.app'}/checkout?status=failed`,
+        pending: `${process.env.APP_URL || 'https://roberson-store.vercel.app'}/checkout?status=pending`,
+      },
+      notification_url: `${process.env.API_URL || 'https://colecionateca-api.onrender.com'}/webhook/pagamento`,
+      marketplace: 'MLB',
     };
 
     const response = await preference.create({ body });
