@@ -17,10 +17,10 @@ const sessionClient = new SessionsClient({
 });
 
 // Rota para enviar mensagens para o Dialogflow
-router.post('/mensagem', authMiddleware, async (req: AuthRequest, res) => {
+router.post('/mensagem', async (req, res) => {
     try {
         const { mensagem } = req.body;
-        const sessionId = req.userId || 'default-session';
+        const sessionId = 'default-session';
 
         if (!mensagem) {
             return res.status(400).json({ message: 'Mensagem é obrigatória' });
