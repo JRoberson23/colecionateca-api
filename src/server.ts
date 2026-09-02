@@ -14,7 +14,6 @@ import checkoutRoutes from './routes/checkout';
 import freteRoutes from './routes/frete';
 import path from 'path';
 import './services/ping';
-import chatbotRoutes from './routes/chatbot';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,7 +27,6 @@ app.use('/enderecos', enderecosRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/frete', freteRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/chatbot', chatbotRoutes);
 
 
 app.get('/', (req, res) => {
