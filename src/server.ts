@@ -33,6 +33,11 @@ app.get('/', (req, res) => {
   res.json({ message: 'API Colecionateca está no ar!' });
 });
 
+// rota de health check (não acessa o banco)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date() });
+});
+
 // Rota de teste para verificar a conexão com o banco de dados
 app.get('/test-db', async (req, res) => {
   try {

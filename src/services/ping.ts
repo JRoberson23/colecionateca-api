@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+/*import cron from 'node-cron';
 import axios from 'axios';
 
 // Função para fazer o ping
@@ -20,3 +20,4 @@ cron.schedule('0,14,28,42 8-20 * * 1-5', async () => {
 
 // ✅ Ping único ao iniciar (não recorrente!)
 console.log('🚀 Serviço de ping iniciado (seg-sex, 8h-20h)');
+*/
