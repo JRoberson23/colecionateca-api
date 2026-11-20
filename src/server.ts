@@ -12,6 +12,7 @@ import pedidosRoutes from './routes/pedidos';
 import  enderecosRoutes  from './routes/enderecos';
 import checkoutRoutes from './routes/checkout';
 import freteRoutes from './routes/frete';
+import avaliacoesRoutes from './routes/avaliacoes';
 import path from 'path';
 import './services/ping';
 
@@ -26,6 +27,7 @@ app.use('/pedidos', authMiddleware, pedidosRoutes);
 app.use('/enderecos', enderecosRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/frete', freteRoutes);
+app.use('/avaliacoes', avaliacoesRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 

@@ -73,3 +73,22 @@ export const itensPedido = pgTable("itens_pedido", {
   subtotal: real("subtotal").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// Tabela: avaliacoes (feedback da loja)
+export const avaliacoes = pgTable("avaliacoes", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  usuario_id: uuid("usuario_id")
+    .notNull()
+    .unique()
+    .references(() => usuarios.id, { onDelete: "cascade" }),
+  nota_geral: integer("nota_geral").notNull(),
+  nota_navegacao: integer("nota_navegacao"),
+  nota_design: integer("nota_design"),
+  nota_checkout: integer("nota_checkout"),
+  comentario: varchar("comentario", { length: 1000 }),
+  status: varchar("status", { length: 20 }).default("pendente").notNull(),
+  resposta_admin: varchar("resposta_admin", { length: 1000 }),
+  respondido_em: timestamp("respondido_em"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
