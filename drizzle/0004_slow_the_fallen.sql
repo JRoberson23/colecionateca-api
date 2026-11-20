@@ -1,0 +1,1 @@
+ALTER TABLE "produtos" RENAME COLUMN "imagem" TO "imagens";
