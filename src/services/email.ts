@@ -1,56 +1,71 @@
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+
+// ⚠️ Este e-mail precisa estar verificado na Brevo (Senders & IP)
+const BREVO_SENDER_EMAIL = 'jroberson.junior@outlook.com';
+const BREVO_SENDER_NAME = 'Roberson Store';
+
+// Função auxiliar que centraliza o envio via API HTTP da Brevo
+async function enviarEmailBrevo(payload: {
+  to: { email: string; name?: string }[];
+  subject: string;
+  htmlContent: string;
+}) {
+  const resposta = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY!,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
+      ...payload,
+    }),
+  });
+
+  if (!resposta.ok) {
+    const corpoErro = await resposta.text();
+    console.error('Erro na API da Brevo:', resposta.status, corpoErro);
+    throw new Error('Falha ao enviar e-mail via Brevo');
+  }
+
+  return resposta.json();
+}
 
 export async function enviarEmailVerificacao(email: string, nome: string, token: string) {
     const link = `${APP_URL}/auth/verify-email?token=${token}`;
 
-    const { data, error } = await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: [email],
+    const html = `
+        <h1>Olá, ${nome}!</h1>
+        <p>Obrigado por se registrar na Roberson Store. Por favor, confirme seu e-mail clicando no link abaixo:</p>
+        <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Confirmar e-mail</a>
+        <p>Se você não se registrou na Roberson Store, por favor ignore este e-mail.</p>
+        <p>Este link de verificação expira em 24 horas.</p>
+        <p>Atenciosamente,<br/>Equipe Roberson Store</p>
+    `;
+
+    return enviarEmailBrevo({
+        to: [{ email, name: nome }],
         subject: "Confirme seu e-mail - Roberson Store",
-        html: `
-            <h1>Olá, ${nome}!</h1>
-            <p>Obrigado por se registrar na Roberson Store. Por favor, confirme seu e-mail clicando no link abaixo:</p>
-            <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Confirmar e-mail</a>
-            <p>Se você não se registrou na Roberson Store, por favor ignore este e-mail.</p>
-            <p>Este link de verificação expira em 24 horas.</p>
-            <p>Atenciosamente,<br/>Equipe Roberson Store</p>
-        `,
+        htmlContent: html,
     });
-
-    if (error) {
-        console.error("Erro ao enviar e-mail de verificação:", error);
-        throw new Error("Erro ao enviar e-mail de verificação");
-    }
-
-    return data;
 }
 
 export async function enviarEmailRecuperacao(email: string, nome: string, token: string) {
     const link = `${APP_URL}/auth/reset-password?token=${token}`;
 
-    const { data, error } = await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: [email],
+    const html = `
+        <h1>Olá, ${nome}!</h1>
+        <p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para criar uma nova senha:</p>
+        <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Redefinir senha</a>
+        <p>Se você não solicitou esta alteração, ignore este e-mail.</p>
+        <p>Este link expira em 1 hora.</p>
+    `;
+
+    return enviarEmailBrevo({
+        to: [{ email, name: nome }],
         subject: 'Recuperação de senha - Roberson Store',
-        html: `
-            <h1>Olá, ${nome}!</h1>
-            <p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para criar uma nova senha:</p>
-            <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Redefinir senha</a>
-            <p>Se você não solicitou esta alteração, ignore este e-mail.</p>
-            <p>Este link expira em 1 hora.</p>
-        `
+        htmlContent: html,
     });
-
-    if (error) {
-        console.error('Erro ao enviar e-mail de recuperação:', error);
-        throw new Error('Erro ao enviar e-mail de recuperação');
-    }
-
-    return data;
 }
 
 export async function enviarEmailNotificacaoPedido(
@@ -59,24 +74,19 @@ export async function enviarEmailNotificacaoPedido(
   cliente: any,
   itens: any[]
 ) {
-  try {
-    const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: [emailLoja],
-      subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Roberson Store`,
-      html: `
+    const html = `
         <h1>🛒 Novo Pedido Recebido!</h1>
-        
+
         <h2>📋 Detalhes do Pedido</h2>
         <p><strong>Número do pedido:</strong> ${pedido.id}</p>
         <p><strong>Data:</strong> ${new Date(pedido.data_pedido).toLocaleString('pt-BR')}</p>
         <p><strong>Status:</strong> ${pedido.status}</p>
-        
+
         <h2>👤 Dados do Cliente</h2>
         <p><strong>Nome:</strong> ${cliente.nome}</p>
         <p><strong>E-mail:</strong> ${cliente.email}</p>
         <p><strong>Telefone:</strong> ${cliente.telefone || 'Não informado'}</p>
-        
+
         <h2>📦 Itens do Pedido</h2>
         <table style="width:100%; border-collapse: collapse;">
           <thead>
@@ -108,29 +118,23 @@ export async function enviarEmailNotificacaoPedido(
             </tr>
           </tfoot>
         </table>
-        
+
         <h2>📍 Endereço de Entrega</h2>
         <p>
           ${pedido.endereco?.logradouro}, ${pedido.endereco?.numero}<br>
           ${pedido.endereco?.bairro}, ${pedido.endereco?.cidade} - ${pedido.endereco?.estado}<br>
           CEP: ${pedido.endereco?.cep}
         </p>
-        
+
         <p style="margin-top: 24px; color: #6b7280; font-size: 14px;">
           Este e-mail foi enviado automaticamente pelo sistema Roberson Store.<br>
           Para gerenciar este pedido, acesse o painel administrativo.
         </p>
-      `,
+    `;
+
+    return enviarEmailBrevo({
+        to: [{ email: emailLoja }],
+        subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Roberson Store`,
+        htmlContent: html,
     });
-
-    if (error) {
-      console.error('Erro ao enviar e-mail de notificação:', error);
-      throw new Error('Erro ao enviar e-mail de notificação');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Erro ao enviar e-mail de notificação:', error);
-    throw error;
-  }
 }
