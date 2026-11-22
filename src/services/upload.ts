@@ -70,3 +70,39 @@ export const uploadToCloudinary = async (fileBuffer: Buffer, filename: string): 
     throw new Error('Erro ao fazer upload da imagem para a nuvem');
   }
 };
+
+// Função para fazer upload de avatar de usuário
+// Redimensiona para 400x400 (economiza banda) e usa folder separado de produtos
+export const uploadAvatarToCloudinary = async (
+  fileBuffer: Buffer,
+  userId: string
+): Promise<string> => {
+  try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      throw new Error('Cloudinary não configurado. Verifique as variáveis de ambiente.');
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'roberson-store/avatares',
+          public_id: `user_${userId}_${Date.now()}`,
+          resource_type: 'image',
+          transformation: [
+            { width: 400, height: 400, crop: 'fill' },
+          ],
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(fileBuffer);
+    });
+
+    return (result as any).secure_url;
+  } catch (error) {
+    console.error('❌ Erro no upload de avatar para Cloudinary:', error);
+    throw new Error('Erro ao fazer upload da foto de perfil');
+  }
+};

@@ -23,6 +23,7 @@ export const usuarios = pgTable("usuarios", {
     email: varchar("email", { length: 255 }).notNull().unique(),
     senha_hash: varchar("senha_hash", { length: 255 }).notNull(),
     role: varchar("role", { length: 50}).default("cliente"),
+    foto_url: varchar("foto_url", { length: 500 }),
     email_verificado: boolean("email_verificado").default(false),
     token_verificacao: varchar("token_verificacao", { length: 255 }),
     token_expiracao: timestamp("token_expiracao"),

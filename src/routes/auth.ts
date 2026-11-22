@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response, NextFunction } from 'express';
 import { db } from '../db';
 import { usuarios } from '../db/schema';
 import { Usuario } from '../models/Usuario';
@@ -9,6 +9,7 @@ import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 import { enviarEmailVerificacao, enviarEmailRecuperacao } from '../services/email';
 import { authMiddleware, AuthRequest } from '../middlewares/auth';
+import { upload, uploadAvatarToCloudinary } from '../services/upload';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_key';
@@ -19,6 +20,19 @@ const registerSchema = z.object({
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
 });
+
+// Wrapper para transformar erros do multer em JSON 400
+function uploadSingle(fieldName: string) {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    upload.single(fieldName)(req, res, (err: unknown) => {
+      if (err) {
+        const msg = err instanceof Error ? err.message : 'Erro no upload da imagem';
+        return res.status(400).json({ message: msg });
+      }
+      next();
+    });
+  };
+}
 
 // POST /auth/register
 router.post("/register", async (req, res) => {
@@ -63,6 +77,7 @@ router.post("/register", async (req, res) => {
         nome: novoUsuario.nome,
         email: novoUsuario.email,
         role: novoUsuario.role,
+        foto_url: null,
       },
     });
   } catch (error) {
@@ -142,6 +157,7 @@ router.post('/login', async (req, res) => {
             senha_hash: string;
             role: string;
             email_verificado: boolean | null;
+            foto_url: string | null;
         };
 
         if (!usuarioData.email_verificado) {
@@ -176,7 +192,8 @@ router.post('/login', async (req, res) => {
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
-                role: usuario.role 
+                role: usuario.role,
+                foto_url: usuarioData.foto_url,
             }
         });
     } catch (error) {
@@ -351,11 +368,87 @@ router.put('/perfil', authMiddleware, async (req: AuthRequest, res) => {
                 nome: userData.nome,
                 email: userData.email,
                 role: userData.role,
+                foto_url: userData.foto_url,
             }
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erro ao atualizar perfil' });
+    }
+});
+
+// PUT /auth/foto - Atualizar foto de perfil
+router.put('/foto', authMiddleware, uploadSingle('foto'), async (req: AuthRequest, res) => {
+    try {
+        const userId = req.userId;
+        if (!userId) {
+            return res.status(401).json({ message: 'Usuário não autenticado' });
+        }
+
+        const file = req.file;
+        if (!file) {
+            return res.status(400).json({ message: 'Nenhuma imagem enviada' });
+        }
+
+        const fotoUrl = await uploadAvatarToCloudinary(file.buffer, userId);
+
+        await db.update(usuarios)
+            .set({ foto_url: fotoUrl, updatedAt: new Date() })
+            .where(eq(usuarios.id, userId));
+
+        const atualizado = await db.select().from(usuarios).where(eq(usuarios.id, userId));
+        const user = atualizado[0];
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        return res.json({
+            message: 'Foto de perfil atualizada!',
+            user: {
+                id: user.id,
+                nome: user.nome,
+                email: user.email,
+                role: user.role,
+                foto_url: user.foto_url,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Erro ao atualizar foto de perfil' });
+    }
+});
+
+// DELETE /auth/foto - Remover foto de perfil
+router.delete('/foto', authMiddleware, async (req: AuthRequest, res) => {
+    try {
+        const userId = req.userId;
+        if (!userId) {
+            return res.status(401).json({ message: 'Usuário não autenticado' });
+        }
+
+        await db.update(usuarios)
+            .set({ foto_url: null, updatedAt: new Date() })
+            .where(eq(usuarios.id, userId));
+
+        const atualizado = await db.select().from(usuarios).where(eq(usuarios.id, userId));
+        const user = atualizado[0];
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        return res.json({
+            message: 'Foto de perfil removida.',
+            user: {
+                id: user.id,
+                nome: user.nome,
+                email: user.email,
+                role: user.role,
+                foto_url: null,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Erro ao remover foto de perfil' });
     }
 });
 

@@ -43,6 +43,13 @@
       "when": 1795204783272,
       "tag": "0005_amusing_network",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795302487110,
+      "tag": "0006_smart_vapor",
+      "breakpoints": true
     }
   ]
 }
