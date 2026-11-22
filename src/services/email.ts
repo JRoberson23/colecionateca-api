@@ -10,14 +10,14 @@ export async function enviarEmailVerificacao(email: string, nome: string, token:
     const { data, error } = await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: [email],
-        subject: "Confirme seu e-mail - Colecionateca",
+        subject: "Confirme seu e-mail - Roberson Store",
         html: `
             <h1>Olá, ${nome}!</h1>
-            <p>Obrigado por se registrar na Colecionateca. Por favor, confirme seu e-mail clicando no link abaixo:</p>
+            <p>Obrigado por se registrar na Roberson Store. Por favor, confirme seu e-mail clicando no link abaixo:</p>
             <a href="${link}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Confirmar e-mail</a>
-            <p>Se você não se registrou na Colecionateca, por favor ignore este e-mail.</p>
+            <p>Se você não se registrou na Roberson Store, por favor ignore este e-mail.</p>
             <p>Este link de verificação expira em 24 horas.</p>
-            <p>Atenciosamente,<br/>Equipe Colecionateca</p>
+            <p>Atenciosamente,<br/>Equipe Roberson Store</p>
         `,
     });
 
@@ -35,7 +35,7 @@ export async function enviarEmailRecuperacao(email: string, nome: string, token:
     const { data, error } = await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: [email],
-        subject: 'Recuperação de senha - Colecionateca',
+        subject: 'Recuperação de senha - Roberson Store',
         html: `
             <h1>Olá, ${nome}!</h1>
             <p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo para criar uma nova senha:</p>
@@ -63,7 +63,7 @@ export async function enviarEmailNotificacaoPedido(
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: [emailLoja],
-      subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Colecionateca`,
+      subject: `🛒 Novo Pedido #${pedido.id.substring(0, 8)} - Roberson Store`,
       html: `
         <h1>🛒 Novo Pedido Recebido!</h1>
         
@@ -117,7 +117,7 @@ export async function enviarEmailNotificacaoPedido(
         </p>
         
         <p style="margin-top: 24px; color: #6b7280; font-size: 14px;">
-          Este e-mail foi enviado automaticamente pelo sistema Colecionateca.<br>
+          Este e-mail foi enviado automaticamente pelo sistema Roberson Store.<br>
           Para gerenciar este pedido, acesse o painel administrativo.
         </p>
       `,
