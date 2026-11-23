@@ -307,7 +307,7 @@ router.put('/perfil', authMiddleware, async (req: AuthRequest, res) => {
             return res.status(401).json({ message: 'Usuário não autenticado' });
         }
 
-        const { nome, email, senha_atual, nova_senha } = req.body;
+        const { nome, senha_atual, nova_senha } = req.body;
 
         // Buscar usuário no banco
         const resultado = await db.select().from(usuarios).where(eq(usuarios.id, userId));
@@ -335,17 +335,17 @@ router.put('/perfil', authMiddleware, async (req: AuthRequest, res) => {
             await db.update(usuarios)
                 .set({
                     nome: nome || usuario.nome,
-                    email: email || usuario.email,
+                    //email: email || usuario.email,
                     senha_hash: novaSenhaHash,
                     updatedAt: new Date(),
                 })
                 .where(eq(usuarios.id, userId));
         } else {
-            // Atualizar apenas nome e email
+            // Atualizar apenas nome
             await db.update(usuarios)
                 .set({
                     nome: nome || usuario.nome,
-                    email: email || usuario.email,
+                    //email: email || usuario.email,
                     updatedAt: new Date(),
                 })
                 .where(eq(usuarios.id, userId));
@@ -366,7 +366,7 @@ router.put('/perfil', authMiddleware, async (req: AuthRequest, res) => {
             user: {
                 id: userData.id,
                 nome: userData.nome,
-                email: userData.email,
+                //email: userData.email,
                 role: userData.role,
                 foto_url: userData.foto_url,
             }
@@ -407,7 +407,7 @@ router.put('/foto', authMiddleware, uploadSingle('foto'), async (req: AuthReques
             user: {
                 id: user.id,
                 nome: user.nome,
-                email: user.email,
+                //email: user.email,
                 role: user.role,
                 foto_url: user.foto_url,
             },
@@ -441,7 +441,7 @@ router.delete('/foto', authMiddleware, async (req: AuthRequest, res) => {
             user: {
                 id: user.id,
                 nome: user.nome,
-                email: user.email,
+                //email: user.email,
                 role: user.role,
                 foto_url: null,
             },
