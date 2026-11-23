@@ -42,6 +42,7 @@ router.get('/', async (req, res) => {
         respondido_em: avaliacoes.respondido_em,
         createdAt: avaliacoes.createdAt,
         usuario_nome: usuarios.nome,
+        usuario_foto_url: usuarios.foto_url,
       })
       .from(avaliacoes)
       .innerJoin(usuarios, eq(avaliacoes.usuario_id, usuarios.id))
@@ -202,7 +203,7 @@ router.get('/admin/todas', adminMiddleware, async (req, res) => {
         id: avaliacoes.id,
         usuario_id: avaliacoes.usuario_id,
         usuario_nome: usuarios.nome,
-        usuario_email: usuarios.email,
+        usuario_foto_url: usuarios.foto_url,
         nota_geral: avaliacoes.nota_geral,
         nota_navegacao: avaliacoes.nota_navegacao,
         nota_design: avaliacoes.nota_design,
